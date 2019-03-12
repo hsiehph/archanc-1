@@ -10,3 +10,6 @@
 [submodule "src/moments"]
 	path = src/moments
 	url = https://bitbucket.org/simongravel/moments.git
+[submodule "src/villanea"]
+	path = src/villanea
+	url = https://github.com/Villanea/Neanderthal_admix
