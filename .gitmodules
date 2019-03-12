@@ -1,0 +1,12 @@
+[submodule "src/ArchIE"]
+	path = src/ArchIE
+	url = https://github.com/sriramlab/ArchIE
+[submodule "src/sprime"]
+	path = src/sprime
+	url = https://github.com/browning-lab/sprime
+[submodule "src/idetect"]
+	path = src/idetect
+	url = https://github.com/LauritsSkov/Introgression-detection
+[submodule "src/moments"]
+	path = src/moments
+	url = https://bitbucket.org/simongravel/moments.git
