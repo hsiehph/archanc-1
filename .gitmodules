@@ -13,3 +13,6 @@
 [submodule "src/villanea"]
 	path = src/villanea
 	url = https://github.com/Villanea/Neanderthal_admix
+[submodule "src/stdpopsim"]
+	path = src/stdpopsim
+	url = https://github.com/popgensims/stdpopsim
