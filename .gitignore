@@ -1,1 +1,4 @@
-output/**
+.ipynb_checkpoints/**
+output/archie_trained_model.Rdata 
+output/ArchIE/**
+output/msprime/**

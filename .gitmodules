@@ -16,3 +16,6 @@
 [submodule "src/stdpopsim"]
 	path = src/stdpopsim
 	url = https://github.com/popgensims/stdpopsim
+[submodule "src/msmc2"]
+	path = src/msmc2
+	url = https://github.com/stschiff/msmc2
