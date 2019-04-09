@@ -1,6 +1,17 @@
+# misc notebooks
 Untitled.ipynb
 sandbox.ipynb
+
+# vcftools log output
+out.log
+
+# python stuff
+.snakemake/**
 .ipynb_checkpoints/**
+__pycache__/**
+
+# output
+output/sprime/**
 output/archie_trained_model.Rdata 
 output/ArchIE/**
 output/msprime/**
