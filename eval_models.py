@@ -1,16 +1,13 @@
 import os
 import sys
-import util
 import argparse
 import warnings
-import msprime
-import pandas as pd
 import multiprocessing
-# from pathos.multiprocessing import ProcessingPool as Pool
-from joblib.externals.loky import set_loky_pickler
-from joblib import parallel_backend
+import msprime
+# import pandas as pd
 from joblib import Parallel, delayed
-# from joblib import wrap_non_picklable_objects
+
+import util
 
 proj_dir = os.getcwd()
 sys.path.insert(0, proj_dir + '/src/stdpopsim')
@@ -146,10 +143,10 @@ def main():
         default="archie")
 
     parser.add_argument(
-            "-F",
-            "--force",
-            help="force rewrite of output files, even if they already exist",
-            action="store_true")
+        "-F",
+        "--force",
+        help="force rewrite of output files, even if they already exist",
+        action="store_true")
 
     args = parser.parse_args()
 
@@ -239,10 +236,13 @@ def main():
         for j, ts in enumerate(model):
 
             if args.replicate_ID == 0:
-                prefix_nomnm = out_dir + args.demographic_model + "_rep" + str(j+1)
+                prefix_nomnm = out_dir + args.demographic_model + "_rep" + str(
+                    j + 1)
             else:
-                prefix_nomnm = out_dir + args.demographic_model + "_rep" + str(args.replicate_ID)
-            prefix_mnm = prefix_nomnm + "_mnm" + str(args.mnm_dist) + "-" + str(args.mnm_frac)
+                prefix_nomnm = out_dir + args.demographic_model + "_rep" + str(
+                    args.replicate_ID)
+            prefix_mnm = prefix_nomnm + "_mnm" + str(
+                args.mnm_dist) + "-" + str(args.mnm_frac)
 
             if args.method == "sprime":
                 suffix = ".vcf"
@@ -250,11 +250,17 @@ def main():
             elif args.method == "archie":
                 suffix = ".snp"
 
-            if args.force or not os.path.isfile(prefix_nomnm + suffix) or not os.path.isfile(prefix_mnm + suffix):
-                log.info("Output files %s*%s are missing or the --force flag is enabled" % (prefix_nomnm, suffix))
+            if args.force or not os.path.isfile(
+                    prefix_nomnm + suffix) or not os.path.isfile(prefix_mnm +
+                                                                 suffix):
+                log.info(
+                    "Output files %s*%s are missing or the --force flag is enabled"
+                    % (prefix_nomnm, suffix))
                 ts_list[j] = list(ts.variants())
             else:
-                log.debug("Output files %s*%s already exist and will not be overwritten" % (prefix_nomnm, suffix))
+                log.debug(
+                    "Output files %s*%s already exist and will not be overwritten"
+                    % (prefix_nomnm, suffix))
 
         # parallelize if running multiple replicates
         if args.cpus > 1 and replicates > 1:
@@ -266,7 +272,9 @@ def main():
         # (for use with the cluster)
         elif replicates == 1:
             for j, ts in ts_list.items():
-                util.process_ts(ts, args.demographic_model, args.replicate_ID, args.mnm_frac, args.mnm_dist, args.method, out_dir)
+                util.process_ts(ts, args.demographic_model, args.replicate_ID,
+                                args.mnm_frac, args.mnm_dist, args.method,
+                                out_dir)
 
         # for j, ts in enumerate(model):
         #     util.process_ts(ts.variants(), model_label, j, args.mnm_frac, args.mnm_dist, args.method, out_dir)

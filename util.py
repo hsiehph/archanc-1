@@ -188,9 +188,10 @@ class generateVCFData:
             snvs.append(snv)
 
 
-#         d = d.append(pd.DataFrame(snv, index=[0]), ignore_index=True)
-# snv_df = pd.DataFrame(snvs)
-# util_log.debug(tuple(pd.DataFrame(snvs).shape))
+        # d = d.append(pd.DataFrame(snv, index=[0]), ignore_index=True)
+        # snv_df = pd.DataFrame(snvs)
+        # util_log.debug(tuple(pd.DataFrame(snvs).shape))
+
         return snvs
 
     def mnms(self):
@@ -333,12 +334,18 @@ class generateEigData:
         generate .geno file from tree sequence
         """
 
-        geno = np.zeros(200, dtype=np.int8)
-
+        # util_log.debug(len(self.variants[0].genotypes))
+        geno = np.zeros((0, len(self.variants[0].genotypes)), dtype=np.int8)
+        # geno = np.array([])
+        # idx = 0
         for variant in self.variants:
-            geno = np.vstack([geno, variant.genotypes])
+            # util_log.debug(variant.genotypes)
+            # util_log.debug(geno)
+            # util_log.debug(geno[idx])
+            geno = np.append(geno, np.asarray([variant.genotypes]), axis=0)
+            # idx += 1
 
-        geno = np.delete(geno, (0), axis=0)  # remove dummy 1st row
+        # geno = np.delete(geno, (0), axis=0)  # remove dummy 1st row
         return geno
 
     def snp(self):
@@ -346,15 +353,15 @@ class generateEigData:
         generate .snp file from tree sequence
         """
 
-        d = pd.DataFrame(columns=['ID', 'CHR', 'POS', 'POS1', 'REF', 'ALT'])
+        d = pd.DataFrame(columns=['ID', 'CHR', 'POS1', 'POS', 'REF', 'ALT'])
         # for variant in list(self.ts.variants()):
         for variant in self.variants:
             d = d.append(
                 pd.DataFrame({
                     'ID': "1:" + str(round(variant.site.position)),
                     'CHR': "1",
-                    'POS': str(round(variant.site.position)),
                     'POS1': str(variant.site.position / 10e6),
+                    'POS': str(round(variant.site.position)),
                     'REF': "A",
                     'ALT': "G"
                 },
@@ -370,7 +377,7 @@ class generateEigData:
         """
 
         snp_mnm = pd.DataFrame(
-            columns=['ID', 'CHR', 'POS', 'POS1', 'REF', 'ALT'])
+            columns=['ID', 'CHR', 'POS1', 'POS', 'REF', 'ALT'])
         #         geno_mat = self.geno()
         repeat_rows = []
         for index, snp in self.snp.iterrows():
@@ -429,7 +436,7 @@ class writeEigData:
 
         snp_out_file = self.output_dir + self.prefix + ".snp"
         util_log.debug("writing .snp file to %s", snp_out_file)
-        self.eig_data.snp.to_csv(snp_out_file, index=False, sep="\t")
+        self.eig_data.snp.to_csv(snp_out_file, index=False, header=False, sep="\t")
 
     def write_geno(self):
         """

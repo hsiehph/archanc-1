@@ -2,7 +2,7 @@
 	"modelNAME": "GutenkunstThreePop",
 	"MNM_dist": 100,
 	"MNM_frac": 0.015,
-	"replicates": 1000,
+	"replicates": 152,
 	"GeneticMap": "src/data/recombination.1e-8_1Mbp.map",
 	"popIDs": ["AFR", "EUR", "EA"],
 	"outgrp" : "AFR",
