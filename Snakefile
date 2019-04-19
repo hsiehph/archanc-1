@@ -284,7 +284,7 @@ rule sprime_run:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
 		prefix = ".".join(output[0].split(".")[:-1])
-		shell(" java -jar src/sprime/sprime.jar gt={input.vcf} outgroup={input.outG} map={GeneticMap} out={prefix} minscore=1 ")
+		shell(" java -jar src/sprime.jar gt={input.vcf} outgroup={input.outG} map={GeneticMap} out={prefix} minscore=1 ")
 
 
 rule sprime_pullTopSegment:
@@ -334,7 +334,7 @@ rule sprime_plot:
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	shell:
-		" Rscript plot_sprime_wMNM_vs_womnm.r {input.top_mnm} {input.top_womnm} {output} "
+		" Rscript plot_sprime_wMNM_vs_woMNM.r {input.top_mnm} {input.top_womnm} {output} "
 
 
 
