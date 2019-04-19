@@ -200,6 +200,12 @@ def main():
         demo_model = homo_sapiens.TennessenTwoPopOutOfAfrica()
         pop_samples = [msprime.Sample(0, 0)] * sample_size + \
                 [msprime.Sample(1, 0)] * sample_size
+                
+    elif args.demographic_model == "RagsdaleArchaic":
+        
+        demo_model = homo_sapiens.RagsdaleArchaic()
+        pop_samples = [msprime.Sample(0, 0)] * sample_size + \
+                [msprime.Sample(1, 0)] * sample_size
 
     demo_model_ts = msprime.simulate(
         # first 100 samples from AFR, next 100 from EUR

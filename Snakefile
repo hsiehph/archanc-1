@@ -18,6 +18,7 @@ rmPopID = config["rmPopID"]
 sampleSize = config["sampleSize"]
 segmentLength = config["segmentLength"]
 
+MODELS = ["GutenkunstThreePop", "TennessenTwoPop", "RagsdaleArchaic"]
 
 #-----------------------------------------------------------------------------
 # Set final targets
@@ -27,19 +28,21 @@ rule all:
 		replicate = "\d+",
 		pop = "[afr|eur]"
 	input:
-		expand("output/ArchIE/%s/%s_{mnm_status}_{pop}_predicted.txt" % (modelNAME, modelNAME),
-			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "woMNM"],
+		expand("output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_predicted.txt", # , #, #% (modelNAME, modelNAME),
+			model_name = MODELS,
+			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "womnm"],
 			pop=["afr", "eur"]),
-		# expand("output/ArchIE/%s/%s_woMNM_{pop}_predicted.txt" % (modelNAME, modelNAME), pop=["afr", "eur"]),
-		# expand("output/ArchIE/%s/%s_mnm%s-%s_{pop}_test_data.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac), pop=["afr", "eur"]),
-		expand("output/ArchIE/%s/%s_{mnm_status}_{pop}_test_data.txt" % (modelNAME, modelNAME),
-			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "woMNM"],
+		# expand("output/ArchIE/{model_name}/{model_name}_womnm_{pop}_predicted.txt" , #, #% (modelNAME, modelNAME), pop=["afr", "eur"]),
+		# expand("output/ArchIE/{model_name}/{model_name}_mnm%s-%s_{pop}_test_data.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac), pop=["afr", "eur"]),
+		expand("output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_test_data.txt" , #, #% (modelNAME, modelNAME),
+			model_name = MODELS,
+			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "womnm"],
 			pop=["afr", "eur"]),
-		sprime_plot = "output/sprime/%s/sinaplot_topSegment_wMNM_vs_woMNM.out.score.pdf" % modelNAME
-    	# "output/ArchIE/%s/%s_rep{replicate}_mnm%s-%s.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-    	# expand("output/ArchIE/%s/%s_rep{replicate}_mnm%s-%s_afr.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac), replicate=range(1, replicates+1)),
-    	# "output/ArchIE/%s/%s_mnm%s-%s_eur_predicted.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-    	# "output/ArchIE/%s/%s_woMNM_eur_predicted.txt" % (modelNAME, modelNAME),
+		sprime_plot = "output/sprime/%s/sinaplot_topSegment_wMNM_vs_womnm.out.score.pdf" , #% modelNAME
+    	# "output/ArchIE/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
+    	# expand("output/ArchIE/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac), replicate=range(1, replicates+1)),
+    	# "output/ArchIE/{model_name}/{model_name}_mnm%s-%s_eur_predicted.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
+    	# "output/ArchIE/{model_name}/{model_name}_womnm_eur_predicted.txt" , #, #% (modelNAME, modelNAME),
 
 
 #-----------------------------------------------------------------------------
@@ -47,37 +50,36 @@ rule all:
 #-----------------------------------------------------------------------------
 rule sim_data_archie:
 	# input:
-	# 	outG = "output/msprime/%s/%s.%s.indID" % (modelNAME, modelNAME, outgrp)
+	# 	outG = "output/msprime/{model_name}/{model_name}.%s.indID" % (modelNAME, modelNAME, outgrp)
 	output:
-		snp = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s.snp" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		geno_afr = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_afr.geno" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		geno_eur = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_eur.geno" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		ind_afr = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_afr.ind" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		ind_eur = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_eur.ind" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		snp_woMNM = "output/msprime/%s/%s_rep{replicate}.snp" % (modelNAME, modelNAME),
-		geno_afr_woMNM = "output/msprime/%s/%s_rep{replicate}_afr.geno" % (modelNAME, modelNAME),
-		geno_eur_woMNM = "output/msprime/%s/%s_rep{replicate}_eur.geno" % (modelNAME, modelNAME),
-		ind_afr_woMNM = "output/msprime/%s/%s_rep{replicate}_afr.ind" % (modelNAME, modelNAME),
-		ind_eur_woMNM = "output/msprime/%s/%s_rep{replicate}_eur.ind" % (modelNAME, modelNAME)
+		snp = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.snp" % (MNM_dist, MNM_frac),
+		geno_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.geno" % (MNM_dist, MNM_frac),
+		geno_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_eur.geno" % (MNM_dist, MNM_frac),
+		ind_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.ind" % (MNM_dist, MNM_frac),
+		ind_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_eur.ind" % (MNM_dist, MNM_frac),
+		snp_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}.snp" , #, #% (modelNAME, modelNAME),
+		geno_afr_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}_afr.geno" , #, #% (modelNAME, modelNAME),
+		geno_eur_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}_eur.geno" , #, #% (modelNAME, modelNAME),
+		ind_afr_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}_afr.ind" , #, #% (modelNAME, modelNAME),
+		ind_eur_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}_eur.ind" , #% (modelNAME, modelNAME)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
-		if modelNAME == "GutenkunstThreePop":
-			shell(" python eval_models.py --replicates 1 --replicate_ID {wildcards.replicate} --length {segmentLength} --mnm_dist {MNM_dist} --mnm_frac {MNM_frac} --demographic_model {modelNAME} --method archie")
+		shell(" python eval_models.py --replicates 1 --replicate_ID {wildcards.replicate} --length {segmentLength} --mnm_dist {MNM_dist} --mnm_frac {MNM_frac} --demographic_model {wildcards.model_name} --method archie")
 
 
 #-----------------------------------------------------------------------------
 # Run ArchIE on EUR data
-# to-do: merge MNM/woMNM rules by population
+# to-do: merge MNM/womnm rules by population
 #-----------------------------------------------------------------------------
 rule archie_stats_MNM_eur:
 	input:
-		snp = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s.snp" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		geno_eur = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_eur.geno" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		geno_afr = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_afr.geno" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		ind_eur = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_eur.ind" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
+		snp = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.snp" % (MNM_dist, MNM_frac),
+		geno_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_eur.geno" % (MNM_dist, MNM_frac),
+		geno_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.geno" % (MNM_dist, MNM_frac),
+		ind_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_eur.ind" % (MNM_dist, MNM_frac),
 	output:
-		archie_out_eur = "output/ArchIE/%s/%s_rep{replicate}_mnm%s-%s_eur.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac)
+		archie_out_eur = "output/ArchIE/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_eur.txt" % (MNM_dist, MNM_frac)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	wildcard_constraints:
@@ -85,14 +87,14 @@ rule archie_stats_MNM_eur:
 	run:
 		shell("python src/ArchIE/data/calc_stats_window_data.py -s {input.snp} -i {input.ind_eur} -a {input.geno_eur} -r {input.geno_afr} -c 1 -b 0 -e 50000 -w 50000 -z 50000 > {output.archie_out_eur} ")
 
-rule archie_stats_woMNM_eur:
+rule archie_stats_womnm_eur:
 	input:
-		snp = "output/msprime/%s/%s_rep{replicate}.snp" % (modelNAME, modelNAME),
-		geno_eur = "output/msprime/%s/%s_rep{replicate}_eur.geno" % (modelNAME, modelNAME),
-		geno_afr = "output/msprime/%s/%s_rep{replicate}_afr.geno" % (modelNAME, modelNAME),
-		ind_eur = "output/msprime/%s/%s_rep{replicate}_eur.ind" % (modelNAME, modelNAME)
+		snp = "output/msprime/{model_name}/{model_name}_rep{replicate}.snp" , #, #% (modelNAME, modelNAME),
+		geno_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_eur.geno" , #, #% (modelNAME, modelNAME),
+		geno_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_afr.geno" , #, #% (modelNAME, modelNAME),
+		ind_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_eur.ind" , #% (modelNAME, modelNAME)
 	output:
-		archie_out_eur = "output/ArchIE/%s/%s_rep{replicate}_woMNM_eur.txt" % (modelNAME, modelNAME)
+		archie_out_eur = "output/ArchIE/{model_name}/{model_name}_rep{replicate}_womnm_eur.txt" , #% (modelNAME, modelNAME)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	wildcard_constraints:
@@ -106,12 +108,12 @@ rule archie_stats_woMNM_eur:
 #-----------------------------------------------------------------------------
 rule archie_stats_MNM_afr:
 	input:
-		snp = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s.snp" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		geno_afr = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_afr.geno" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		geno_eur = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_eur.geno" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		ind_afr = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s_afr.ind" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
+		snp = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.snp" % (MNM_dist, MNM_frac),
+		geno_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.geno" % (MNM_dist, MNM_frac),
+		geno_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_eur.geno" % (MNM_dist, MNM_frac),
+		ind_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.ind" % (MNM_dist, MNM_frac),
 	output:
-		archie_out_afr = "output/ArchIE/%s/%s_rep{replicate}_mnm%s-%s_afr.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
+		archie_out_afr = "output/ArchIE/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_afr.txt" % (MNM_dist, MNM_frac),
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	wildcard_constraints:
@@ -119,14 +121,14 @@ rule archie_stats_MNM_afr:
 	run:
 		shell("python src/ArchIE/data/calc_stats_window_data.py -s {input.snp} -i {input.ind_afr} -a {input.geno_afr} -r {input.geno_eur} -c 1 -b 0 -e 50000 -w 50000 -z 50000 > {output.archie_out_afr}")
 
-rule archie_stats_woMNM_afr:
+rule archie_stats_womnm_afr:
 	input:
-		snp = "output/msprime/%s/%s_rep{replicate}.snp" % (modelNAME, modelNAME),
-		geno_afr = "output/msprime/%s/%s_rep{replicate}_afr.geno" % (modelNAME, modelNAME),
-		geno_eur = "output/msprime/%s/%s_rep{replicate}_eur.geno" % (modelNAME, modelNAME),
-		ind_afr = "output/msprime/%s/%s_rep{replicate}_afr.ind" % (modelNAME, modelNAME)
+		snp = "output/msprime/{model_name}/{model_name}_rep{replicate}.snp" , #, #% (modelNAME, modelNAME),
+		geno_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_afr.geno" , #, #% (modelNAME, modelNAME),
+		geno_eur = "output/msprime/{model_name}/{model_name}_rep{replicate}_eur.geno" , #, #% (modelNAME, modelNAME),
+		ind_afr = "output/msprime/{model_name}/{model_name}_rep{replicate}_afr.ind" , #% (modelNAME, modelNAME)
 	output:
-		archie_out_afr = "output/ArchIE/%s/%s_rep{replicate}_woMNM_afr.txt" % (modelNAME, modelNAME)
+		archie_out_afr = "output/ArchIE/{model_name}/{model_name}_rep{replicate}_womnm_afr.txt" , #% (modelNAME, modelNAME)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	wildcard_constraints:
@@ -140,14 +142,15 @@ rule archie_stats_woMNM_afr:
 #-----------------------------------------------------------------------------
 rule archie_merge:
 	input:
-		# "output/ArchIE/%s/%s_rep{replicate}_mnm%s-%s_{pop}.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac)
-		expand("output/ArchIE/%s/%s_rep{replicate}_{mnm_status}_{pop}.txt" % (modelNAME, modelNAME),
+		# "output/ArchIE/{model_name}/{model_name}_rep{replicate}_mnm%s-%s_{pop}.txt" % (modelNAME, modelNAME, MNM_dist, MNM_frac)
+		expand("output/ArchIE/{model_name}/{model_name}_rep{replicate}_{mnm_status}_{pop}.txt" , #, #% (modelNAME, modelNAME),
+			model_name = MODELS,
 			replicate=range(1, replicates+1),
-			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "woMNM"],
+			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "womnm"],
 			pop=["afr", "eur"])
-		# "output/ArchIE/%s/%s_rep{replicate}_{mnm_status}_{pop}.txt" % (modelNAME, modelNAME)
+		# "output/ArchIE/{model_name}/{model_name}_rep{replicate}_{mnm_status}_{pop}.txt" , #% (modelNAME, modelNAME)
 	output:
-		"output/ArchIE/%s/%s_{mnm_status}_{pop}_test_data.txt" % (modelNAME, modelNAME)
+		"output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_test_data.txt" , #% (modelNAME, modelNAME)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	wildcard_constraints:
@@ -186,9 +189,9 @@ rule archie_run_training:
 rule archie_predict:
 	input:
 		training_data = "output/ArchIE/archie_trained_model.Rdata",
-		testing_data = "output/ArchIE/%s/%s_{mnm_status}_{pop}_test_data.txt" % (modelNAME, modelNAME)
+		testing_data = "output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_test_data.txt" , #% (modelNAME, modelNAME)
 	output:
-		predicted_data = "output/ArchIE/%s/%s_{mnm_status}_{pop}_predicted.txt" % (modelNAME, modelNAME)
+		predicted_data = "output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_predicted.txt" , #% (modelNAME, modelNAME)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
@@ -200,12 +203,14 @@ rule archie_predict:
 #-----------------------------------------------------------------------------
 rule output_IDfiles:
 	output:
-		expand("output/msprime/%s/%s.{ID}.indID" % (modelNAME, modelNAME), ID=popIDs)
+		expand("output/msprime/{model_name}/{model_name}.{ID}.indID",
+			model_name = MODELS,
+			ID=popIDs)
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
 		for ID in popIDs:
-			with open("output/msprime/%s/%s.%s.indID" % (modelNAME, modelNAME, ID), "w") as fout:
+			with open("output/msprime/{model_name}/{model_name}.%s.indID" % ID, "w") as fout:
 				for i in range(sampleSize):
 					fout.write("%s_ind%s" % (ID, i) + "\n")
 
@@ -215,15 +220,15 @@ rule output_IDfiles:
 #-----------------------------------------------------------------------------
 rule sim_data_sprime:
 	input:
-		outG = "output/msprime/%s/%s.%s.indID" % (modelNAME, modelNAME, outgrp)
+		outG = "output/msprime/{model_name}/{model_name}.%s.indID" % (outgrp)
 	output:
-		vcf = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s.vcf" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-		vcf_woMNM = "output/msprime/%s/%s_rep{replicate}.vcf" % (modelNAME, modelNAME)
+		vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.vcf" % (MNM_dist, MNM_frac),
+		vcf_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}.vcf" , #% (modelNAME, modelNAME)
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
 		if modelNAME == "GutenkunstThreePop":
-			shell(" python eval_models.py --replicates 1 --replicate_ID {wildcards.replicate} --length {segmentLength} --mnm_dist {MNM_dist} --mnm_frac {MNM_frac} --demographic_model {modelNAME} --method sprime")
+			shell(" python eval_models.py --replicates 1 --replicate_ID {wildcards.replicate} --length {segmentLength} --mnm_dist {MNM_dist} --mnm_frac {MNM_frac} --demographic_model {wildcards.model_name} --method sprime")
 
 		# else:
 		# 	shell(" python eval_models.py {wildcards.replicate} {segmentLength} {MNM_dist} {MNM_frac} | \
@@ -234,12 +239,12 @@ rule sim_data_sprime:
 #-----------------------------------------------------------------------------
 # clean up non-MNM VCF
 #-----------------------------------------------------------------------------
-rule process_vcf_woMNM:
+rule process_vcf_womnm:
     input:
-        vcf = "output/msprime/%s/%s_rep{replicate}.vcf" % (modelNAME, modelNAME),
-        rm_ids = "output/msprime/%s/%s.%s.indID"  % (modelNAME, modelNAME, rmPopID)
+        vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}.vcf" , #, #% (modelNAME, modelNAME),
+        rm_ids = "output/msprime/{model_name}/{model_name}.%s.indID"  % (rmPopID)
     output:
-        vcf = "output/msprime/%s/%s_rep{replicate}_womnm.vcf.gz" % (modelNAME, modelNAME)
+        vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_womnm.vcf.gz" , #% (modelNAME, modelNAME)
     params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
     run:
@@ -253,10 +258,10 @@ rule process_vcf_woMNM:
 #-----------------------------------------------------------------------------
 rule process_vcf_wMNM:
     input:
-        vcf = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s.vcf" % (modelNAME, modelNAME, MNM_dist, MNM_frac),
-        rm_ids = "output/msprime/%s/%s.%s.indID"  % (modelNAME, modelNAME, rmPopID)
+        vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.vcf" % (MNM_dist, MNM_frac),
+        rm_ids = "output/msprime/{model_name}/{model_name}.%s.indID"  % (rmPopID)
     output:
-        vcf = "output/msprime/%s/%s_rep{replicate}_mnm%s-%s.vcf.gz" % (modelNAME, modelNAME, MNM_dist, MNM_frac)
+        vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.vcf.gz" % (MNM_dist, MNM_frac)
     params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
     run:
@@ -270,10 +275,10 @@ rule process_vcf_wMNM:
 #-----------------------------------------------------------------------------
 rule sprime_run:
 	input:
-	    vcf = "output/msprime/%s/%s_rep{replicate}_{mnm_status}.vcf.gz" % (modelNAME, modelNAME),
-		outG = "output/msprime/%s/%s.%s.indID" % (modelNAME, modelNAME, outgrp)
+	    vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.vcf.gz" , #, #% (modelNAME, modelNAME),
+		outG = "output/msprime/{model_name}/{model_name}.%s.indID" % (outgrp)
 	output:
-	    "output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score" % (modelNAME, modelNAME)
+	    "output/sprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.sprime.out.score" , #% (modelNAME, modelNAME)
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
@@ -283,9 +288,9 @@ rule sprime_run:
 
 rule sprime_pullTopSegment:
 	input:
-		"output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score" % (modelNAME, modelNAME)
+		"output/sprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.sprime.out.score" , #% (modelNAME, modelNAME)
 	output:
-		"output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score.top" % (modelNAME, modelNAME)
+		"output/sprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.sprime.out.score.top" , #% (modelNAME, modelNAME)
 	params:
 	    sge_opts="-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	shell:
@@ -294,13 +299,14 @@ rule sprime_pullTopSegment:
 
 rule sprime_mergeTopSegment:
 	input:
-		# expand("output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score.top" % (modelNAME, modelNAME), replicate=range(1, replicates+1))
-		expand("output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score.top" % (modelNAME, modelNAME),
+		# expand("output/sprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.sprime.out.score.top" , #, #% (modelNAME, modelNAME), replicate=range(1, replicates+1))
+		expand("output/sprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.sprime.out.score.top" , #, #% (modelNAME, modelNAME),
+			model_name = MODELS,
 			replicate=range(1, replicates+1),
-			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "woMNM"])
-		# "output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score.top" % (modelNAME, modelNAME)
+			mnm_status=["mnm%s-%s" % (MNM_dist, MNM_frac), "womnm"])
+		# "output/sprime/{model_name}/{model_name}_rep{replicate}_{mnm_status}.sprime.out.score.top" , #% (modelNAME, modelNAME)
 	output:
-		"output/sprime/%s/topSegment_{mnm_status}.out.score" % modelNAME
+		"output/sprime/%s/topSegment_{mnm_status}.out.score" , #% modelNAME
 	params:
 	    sge_opts="-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 #	shell:
@@ -309,25 +315,25 @@ rule sprime_mergeTopSegment:
 		shell(""" cat {input} | grep -v "CHROM" > {output} """)
 #		for f in input:
 #			shell(" cat %s >> {output} " % (f) )
-# 		shell(" echo output/sprime/%s/%s_womnm_rep{{1..%s}}.sprime.out.score.top | \
+# 		shell(" echo output/sprime/{model_name}/{model_name}_womnm_rep{{1..%s}}.sprime.out.score.top | \
 # 		    xargs cat | \
-# 		    grep -v "CHROM" > {output} ; echo output/sprime/%s/%s_womnm_rep{{1..%s}}.sprime.out.score.top | xargs rm " % (modelNAME, modelNAME, replicates, modelNAME, modelNAME, replicates) )
-# 		shell(" echo output/sprime/%s/%s_womnm_rep{{1..%s}}.sprime.out.score.top | \
+# 		    grep -v "CHROM" > {output} ; echo output/sprime/{model_name}/{model_name}_womnm_rep{{1..%s}}.sprime.out.score.top | xargs rm " % (modelNAME, modelNAME, replicates, modelNAME, modelNAME, replicates) )
+# 		shell(" echo output/sprime/{model_name}/{model_name}_womnm_rep{{1..%s}}.sprime.out.score.top | \
 # 		    xargs cat | \
-# 		    grep -v "CHROM" > {output} ; echo output/sprime/%s/%s_womnm_rep{{1..%s}}.sprime.out.score.top | xargs rm " % (modelNAME, modelNAME, replicates, modelNAME, modelNAME, replicates)
-		# shell(""" echo output/sprime/%s/%s_womnm_rep{{1..%s}}.sprime.out.score.top | \
+# 		    grep -v "CHROM" > {output} ; echo output/sprime/{model_name}/{model_name}_womnm_rep{{1..%s}}.sprime.out.score.top | xargs rm " % (modelNAME, modelNAME, replicates, modelNAME, modelNAME, replicates)
+		# shell(""" echo output/sprime/{model_name}/{model_name}_womnm_rep{{1..%s}}.sprime.out.score.top | \
 		    # xargs cat | grep -v "CHROM" > {output}""" % (modelNAME, modelNAME, replicates))
 
 rule sprime_plot:
 	input:
-	    top_womnm = "output/sprime/%s/topSegment_woMNM.out.score" % modelNAME,
-		top_mnm = "output/sprime/%s/topSegment_wMNM.out.score" % modelNAME
+	    top_womnm = "output/sprime/%s/topSegment_womnm.out.score" , #, #% modelNAME,
+		top_mnm = "output/sprime/%s/topSegment_wMNM.out.score" , #% modelNAME
 	output:
-		"output/sprime/%s/sinaplot_topSegment_wMNM_vs_woMNM.out.score.pdf" % modelNAME
+		"output/sprime/%s/sinaplot_topSegment_wMNM_vs_womnm.out.score.pdf" , #% modelNAME
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	shell:
-		" Rscript plot_sprime_wMNM_vs_woMNM.r {input.top_mnm} {input.top_womnm} {output} "
+		" Rscript plot_sprime_wMNM_vs_womnm.r {input.top_mnm} {input.top_womnm} {output} "
 
 
 
