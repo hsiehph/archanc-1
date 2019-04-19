@@ -268,7 +268,7 @@ rule process_vcf_wMNM:
 #-----------------------------------------------------------------------------
 # run sprime on non-MNM data
 #-----------------------------------------------------------------------------
-rule sprime_woMNM:
+rule sprime_run:
 	input:
 	    vcf = "output/msprime/%s/%s_rep{replicate}_{mnm_status}.vcf.gz" % (modelNAME, modelNAME),
 		outG = "output/msprime/%s/%s.%s.indID" % (modelNAME, modelNAME, outgrp)
@@ -281,7 +281,7 @@ rule sprime_woMNM:
 		shell(" java -jar src/sprime/sprime.jar gt={input.vcf} outgroup={input.outG} map={GeneticMap} out={prefix} minscore=1 ")
 
 
-rule sprime_pullTopSegment_woMNM:
+rule sprime_pullTopSegment:
 	input:
 		"output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score" % (modelNAME, modelNAME)
 	output:
@@ -292,7 +292,7 @@ rule sprime_pullTopSegment_woMNM:
 		" set +o pipefail ; sort -n -r -k8 {input} | head -1 > {output} "
 
 
-rule sprime_mergeTopSegment_woMNM:
+rule sprime_mergeTopSegment:
 	input:
 		# expand("output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score.top" % (modelNAME, modelNAME), replicate=range(1, replicates+1))
 		expand("output/sprime/%s/%s_rep{replicate}_{mnm_status}.sprime.out.score.top" % (modelNAME, modelNAME),
