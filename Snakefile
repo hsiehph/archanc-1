@@ -189,9 +189,9 @@ rule archie_run_training:
 rule archie_predict:
 	input:
 		training_data = "output/ArchIE/archie_trained_model.Rdata",
-		testing_data = "output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_test_data.txt" , #% (modelNAME, modelNAME)
+		testing_data = "output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_test_data.txt", #% (modelNAME, modelNAME)
 	output:
-		predicted_data = "output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_predicted.txt" , #% (modelNAME, modelNAME)
+		predicted_data = "output/ArchIE/{model_name}/{model_name}_{mnm_status}_{pop}_predicted.txt", #% (modelNAME, modelNAME)
 	params:
 		sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
@@ -209,8 +209,9 @@ rule output_IDfiles:
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
-		for ID in popIDs:
-			with open("output/msprime/{model_name}/{model_name}.%s.indID" % ID, "w") as fout:
+		for outfile in output:
+			ID = outfile.split(".")[1]
+			with open(outfile, "w") as fout:
 				for i in range(sampleSize):
 					fout.write("%s_ind%s" % (ID, i) + "\n")
 
@@ -220,10 +221,10 @@ rule output_IDfiles:
 #-----------------------------------------------------------------------------
 rule sim_data_sprime:
 	input:
-		outG = "output/msprime/{model_name}/{model_name}.%s.indID" % (outgrp)
+		outG = "output/msprime/{model_name}/{model_name}.%s.indID" % outgrp
 	output:
 		vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.vcf" % (MNM_dist, MNM_frac),
-		vcf_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}.vcf" , #% (modelNAME, modelNAME)
+		vcf_womnm = "output/msprime/{model_name}/{model_name}_rep{replicate}.vcf", #% (modelNAME, modelNAME)
 	params:
 	    sge_opts = "-l h_rt=120:00:00 -l mfree=4G -l gpfsstate=0"
 	run:
@@ -241,8 +242,8 @@ rule sim_data_sprime:
 #-----------------------------------------------------------------------------
 rule process_vcf_womnm:
     input:
-        vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}.vcf" , #, #% (modelNAME, modelNAME),
-        rm_ids = "output/msprime/{model_name}/{model_name}.%s.indID"  % (rmPopID)
+        vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}.vcf", #, #% (modelNAME, modelNAME),
+        rm_ids = "output/msprime/{model_name}/{model_name}.%s.indID"  % rmPopID
     output:
         vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_womnm.vcf.gz" , #% (modelNAME, modelNAME)
     params:
@@ -259,7 +260,7 @@ rule process_vcf_womnm:
 rule process_vcf_wMNM:
     input:
         vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.vcf" % (MNM_dist, MNM_frac),
-        rm_ids = "output/msprime/{model_name}/{model_name}.%s.indID"  % (rmPopID)
+        rm_ids = "output/msprime/{model_name}/{model_name}.%s.indID"  % rmPopID
     output:
         vcf = "output/msprime/{model_name}/{model_name}_rep{replicate}_mnm%s-%s.vcf.gz" % (MNM_dist, MNM_frac)
     params:

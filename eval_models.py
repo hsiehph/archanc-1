@@ -116,15 +116,6 @@ def main():
         default=30)
 
     parser.add_argument(
-        "-p",
-        "--projectdir",
-        help="directory to store output files",
-        nargs='?',
-        type=str,
-        metavar='/path/to/project_directory',
-        default="helmsman_output")
-
-    parser.add_argument(
         "-D",
         "--demographic_model",
         help="demographic model to simulate under",
@@ -159,7 +150,7 @@ def main():
         warnings.filterwarnings("ignore", category=UserWarning)
 
     util.util_log.setLevel(loglev)
-    log = util.get_logger("helmsman", level=loglev)
+    log = util.get_logger("archanc", level=loglev)
 
     log.debug("Running with the following options:")
     for arg in vars(args):
@@ -200,9 +191,9 @@ def main():
         demo_model = homo_sapiens.TennessenTwoPopOutOfAfrica()
         pop_samples = [msprime.Sample(0, 0)] * sample_size + \
                 [msprime.Sample(1, 0)] * sample_size
-                
+
     elif args.demographic_model == "RagsdaleArchaic":
-        
+
         demo_model = homo_sapiens.RagsdaleArchaic()
         pop_samples = [msprime.Sample(0, 0)] * sample_size + \
                 [msprime.Sample(1, 0)] * sample_size
